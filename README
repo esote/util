@@ -1,0 +1,7 @@
+Go utilities.
+
+dcache/
+	Delayed in-memory cache as a self-populating ring buffer.
+
+uuid/
+	Generate (v4) UUIDs (128 bits) or MegaUUIDs (1028 bits) as a byte slice.
