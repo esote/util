@@ -32,8 +32,31 @@ func NewDCache(size int, fill func() interface{}) (*DCache, error) {
 	}, nil
 }
 
-// Next retrieves the next value in the cache.
+// Next retrieves the next value in the cache. Refilling is done consecutively.
 func (d *DCache) Next() interface{} {
+	d.mu.Lock()
+
+	if d.index == d.size-1 {
+		for i := 0; i < d.size; i++ {
+			d.cache[i] = d.fill()
+		}
+	}
+
+	ret := d.cache[d.index]
+
+	if d.index == 0 {
+		d.index = d.size - 1
+	} else {
+		d.index--
+	}
+
+	d.mu.Unlock()
+
+	return ret
+}
+
+// NextWg retrieves the next value in the cache. Refilling is done concurrently.
+func (d *DCache) NextWg() interface{} {
 	d.mu.Lock()
 
 	if d.index == d.size-1 {

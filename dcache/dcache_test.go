@@ -42,6 +42,23 @@ func BenchmarkNext(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		d.Next()
+		_ = d.Next()
+	}
+}
+
+// Expected to take more ns/op
+func BenchmarkNextWg(b *testing.B) {
+	const size = 10
+
+	fill := func() interface{} {
+		return 3
+	}
+
+	d, _ := NewDCache(size, fill)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_ = d.NextWg()
 	}
 }
