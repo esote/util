@@ -5,8 +5,7 @@ import (
 	"sync"
 )
 
-// DCache (delayed cache) is an in-memory cache as a self-populating ring
-// buffer.
+// DCache (delayed cache) is a cache as a self-populating ring buffer.
 // The cache is only repopulated when all values have been withdrawn.
 type DCache struct {
 	cache []interface{}

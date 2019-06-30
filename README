@@ -1,7 +1,10 @@
 Go utilities.
 
 dcache/
-	Delayed in-memory cache as a self-populating ring buffer.
+	Delayed cache as a self-populating ring buffer.
+
+tcache/
+	Timed cache which refreshes only after a certain duration.
 
 uuid/
 	Generate (v4) UUIDs (128 bits) or MegaUUIDs (1028 bits) as a byte slice.

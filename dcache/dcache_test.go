@@ -46,7 +46,7 @@ func BenchmarkNext(b *testing.B) {
 	}
 }
 
-// Expected to take more ns/op
+// Expected to take more ns/op.
 func BenchmarkNextWg(b *testing.B) {
 	const size = 10
 
