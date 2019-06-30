@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,15 +21,8 @@ func srvUUIDs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	buf := make([]byte, uuid.LenUUID*2+1)
-	buf[uuid.LenUUID*2] = '\n'
-
-	var n []byte
-
 	for i := 0; i < count; i++ {
-		n = cacheUUID.NextWg().([]byte)
-		hex.Encode(buf, n)
-		w.Write(buf)
+		fmt.Fprintf(w, "%x\n", cacheUUID.NextWg().([]byte))
 	}
 }
 

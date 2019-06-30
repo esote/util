@@ -1,0 +1,4 @@
+This program shows how use the tcache package. This web server constructs
+something resembling a Merkel tree by gathering a random value and the hash of
+the previous node. Requests with /?full show the full tree. Nodes are only added
+at most every 5 seconds and only on request.
