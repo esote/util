@@ -1,6 +1,7 @@
 package fcmp
 
 import (
+	"bytes"
 	"io"
 	"os"
 )
@@ -40,14 +41,8 @@ func FCmp(x, y *os.File) (bool, error) {
 			return false, erry
 		}
 
-		if nx != ny {
+		if nx != ny || !bytes.Equal(bufx, bufy) {
 			return false, nil
-		}
-
-		for i := 0; i < l; i++ {
-			if bufx[i] != bufy[i] {
-				return false, nil
-			}
 		}
 	}
 }
