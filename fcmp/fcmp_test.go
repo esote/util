@@ -104,7 +104,7 @@ func TestLarge(t *testing.T) {
 
 	rand.Read(strx)
 
-	// same
+	// Same.
 	copy(stry, strx)
 
 	fx, fy := write_open(strx, stry)
@@ -118,7 +118,7 @@ func TestLarge(t *testing.T) {
 	fx.Close()
 	fy.Close()
 
-	// different
+	// Different.
 	rand.Read(stry)
 
 	fx, fy = write_open(strx, stry)
@@ -127,6 +127,78 @@ func TestLarge(t *testing.T) {
 		t.Error(err)
 	} else if same {
 		t.Error("expected different")
+	}
+
+	fx.Close()
+	fy.Close()
+}
+
+func TestReloadOffset(t *testing.T) {
+	strx := []byte("hello")
+	stry := []byte("12llo")
+
+	fx, fy := write_open(strx, stry)
+
+	buf := make([]byte, 2)
+
+	fx.Read(buf)
+	fy.Read(buf)
+
+	if same, err := FCmp(fx, fy); err != nil {
+		t.Error(err)
+	} else if !same {
+		t.Error("expected same")
+	}
+
+	fx.Read(buf)
+
+	if !bytes.Equal(buf, []byte("ll")) {
+		t.Error("offset not reloaded")
+	}
+
+	fy.Read(buf)
+
+	if !bytes.Equal(buf, []byte("ll")) {
+		t.Error("offset not reloaded")
+	}
+
+	fx.Close()
+	fy.Close()
+}
+
+func TestBare(t *testing.T) {
+	strx := []byte("hello")
+	stry := []byte("2llo")
+
+	fx, fy := write_open(strx, stry)
+
+	buf := make([]byte, 2)
+
+	fx.Read(buf)
+
+	buf = make([]byte, 1)
+
+	fy.Read(buf)
+
+	if same, err := FCmpBare(fx, fy); err != nil {
+		t.Error(err)
+	} else if !same {
+		// Unlike FCmp, FCmpBare should ignore differing file sizes.
+		t.Error("expected same")
+	}
+
+	buf = make([]byte, 2)
+
+	fx.Read(buf)
+
+	if bytes.Equal(buf, []byte("ll")) {
+		t.Error("offset reloaded somehow")
+	}
+
+	fy.Read(buf)
+
+	if bytes.Equal(buf, []byte("ll")) {
+		t.Error("offset reloaded somehow")
 	}
 
 	fx.Close()
