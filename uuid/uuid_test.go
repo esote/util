@@ -41,13 +41,13 @@ func TestUniqueMegaUUID(t *testing.T) {
 
 func BenchmarkUUID(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewUUID()
+		_, _ = NewUUID()
 	}
 }
 
 func BenchmarkMegaUUID(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewMegaUUID()
+		_, _ = NewMegaUUID()
 	}
 }
 

@@ -11,28 +11,28 @@ import (
 	"github.com/esote/util/tcache"
 )
 
-type Node struct {
+type node struct {
 	rand []byte
 	hash []byte
 }
 
 var (
 	cache *tcache.TCache
-	tree  = []Node{{
+	tree  = []node{{
 		rand: []byte{0},
 		hash: []byte{0},
 	}}
 )
 
 func srvNodes(w http.ResponseWriter, r *http.Request) {
-	next := cache.Next().(Node)
+	next := cache.Next().(node)
 
 	if _, ok := r.URL.Query()["full"]; ok {
 		for _, n := range tree {
-			fmt.Fprintf(w, "%x : %x\n", n.rand, n.hash)
+			_, _ = fmt.Fprintf(w, "%x : %x\n", n.rand, n.hash)
 		}
 	} else {
-		fmt.Fprintf(w, "%x : %x\n", next.rand, next.hash)
+		_, _ = fmt.Fprintf(w, "%x : %x\n", next.rand, next.hash)
 	}
 }
 
@@ -41,14 +41,17 @@ func main() {
 
 	fill := func() interface{} {
 		r := make([]byte, sha256.Size)
-		rand.Read(r)
+
+		if _, err := rand.Read(r); err != nil {
+			log.Fatal(err)
+		}
 
 		treetop := tree[len(tree)-1]
 
 		hash.Reset()
 		hash.Write(append(treetop.rand, treetop.hash...))
 
-		n := Node{
+		n := node{
 			rand: r,
 			hash: hash.Sum(nil),
 		}

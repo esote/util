@@ -6,13 +6,13 @@ import (
 	"os"
 )
 
-// FCmp compares files quickly.
+// Files compares files quickly.
 //
-// FCmp begins comparison at the current file (seek) offset, but preserves that
-// offset to reload after comparison finishes. Despite this, FCmp will return
-// false if the files differ in size regardless of offset. Use FCmpBare if you
-// wish to disregard file size and offset reloading.
-func FCmp(x, y *os.File) (bool, error) {
+// Begins comparison at the current file (seek) offset, but preserves that
+// offset to reload after comparison finishes. Despite this, Files will return
+// false if the files differ in size regardless of offset. Use Bare if you wish
+// to disregard file size and offset reloading.
+func Files(x, y *os.File) (bool, error) {
 	statx, err := x.Stat()
 
 	if err != nil {
@@ -42,9 +42,9 @@ func FCmp(x, y *os.File) (bool, error) {
 		return false, err
 	}
 
-	equal, err := FCmpBare(x, y)
+	equal, err := Bare(x, y)
 
-	// When FCmpBare's error is nil, care about offset reload errors.
+	// When Bare's error is nil, care about offset reload errors.
 	if _, errx := x.Seek(offsetx, os.SEEK_SET); err == nil {
 		err = errx
 	}
@@ -57,9 +57,9 @@ func FCmp(x, y *os.File) (bool, error) {
 
 }
 
-// FCmpPath compares files quickly, handling file open and close as a wrapper
-// for FCmp.
-func FCmpPath(x, y string) (bool, error) {
+// Paths compares files quickly, handling file open and close as a wrapper
+// for Files.
+func Paths(x, y string) (bool, error) {
 	if x == y {
 		return true, nil
 	}
@@ -76,9 +76,9 @@ func FCmpPath(x, y string) (bool, error) {
 		return false, err
 	}
 
-	same, err := FCmp(fx, fy)
+	same, err := Files(fx, fy)
 
-	// When FCmp's error is nil, care about close errors.
+	// When Files' error is nil, care about close errors.
 	if errx := fx.Close(); err == nil {
 		err = errx
 	}
@@ -90,10 +90,10 @@ func FCmpPath(x, y string) (bool, error) {
 	return same, err
 }
 
-// FCmpBare compares files quickly, disregarding file size.
+// Bare compares files quickly, disregarding file size.
 //
-// FCmpBare will not preserve the file offset: for this look to plain FCmp.
-func FCmpBare(x, y *os.File) (bool, error) {
+// Bare will not preserve the file offset: for this look to Files.
+func Bare(x, y *os.File) (bool, error) {
 	const l = 1000
 
 	bufx := make([]byte, l)

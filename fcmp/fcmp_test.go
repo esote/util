@@ -45,9 +45,9 @@ func TestFuzz(t *testing.T) {
 			rand.Read(strx)
 			rand.Read(stry)
 
-			fx, fy := write_open(strx, stry)
+			fx, fy := writeOpen(strx, stry)
 
-			same, err := FCmp(fx, fy)
+			same, err := Files(fx, fy)
 
 			if err != nil {
 				t.Error(err)
@@ -68,9 +68,9 @@ func TestFuzz(t *testing.T) {
 func TestSame(t *testing.T) {
 	str := []byte("abc")
 
-	fx, fy := write_open(str, str)
+	fx, fy := writeOpen(str, str)
 
-	if same, err := FCmp(fx, fy); err != nil {
+	if same, err := Files(fx, fy); err != nil {
 		t.Error(err)
 	} else if !same {
 		t.Error("expected same")
@@ -84,9 +84,9 @@ func TestDifferent(t *testing.T) {
 	strx := []byte("ab")
 	stry := []byte("abcd")
 
-	fx, fy := write_open(strx, stry)
+	fx, fy := writeOpen(strx, stry)
 
-	if same, err := FCmp(fx, fy); err != nil {
+	if same, err := Files(fx, fy); err != nil {
 		t.Error(err)
 	} else if same {
 		t.Error("expected different")
@@ -107,9 +107,9 @@ func TestLarge(t *testing.T) {
 	// Same.
 	copy(stry, strx)
 
-	fx, fy := write_open(strx, stry)
+	fx, fy := writeOpen(strx, stry)
 
-	if same, err := FCmp(fx, fy); err != nil {
+	if same, err := Files(fx, fy); err != nil {
 		t.Error(err)
 	} else if !same {
 		t.Error("expected same")
@@ -121,9 +121,9 @@ func TestLarge(t *testing.T) {
 	// Different.
 	rand.Read(stry)
 
-	fx, fy = write_open(strx, stry)
+	fx, fy = writeOpen(strx, stry)
 
-	if same, err := FCmp(fx, fy); err != nil {
+	if same, err := Files(fx, fy); err != nil {
 		t.Error(err)
 	} else if same {
 		t.Error("expected different")
@@ -137,14 +137,14 @@ func TestReloadOffset(t *testing.T) {
 	strx := []byte("hello")
 	stry := []byte("12llo")
 
-	fx, fy := write_open(strx, stry)
+	fx, fy := writeOpen(strx, stry)
 
 	buf := make([]byte, 2)
 
 	fx.Read(buf)
 	fy.Read(buf)
 
-	if same, err := FCmp(fx, fy); err != nil {
+	if same, err := Files(fx, fy); err != nil {
 		t.Error(err)
 	} else if !same {
 		t.Error("expected same")
@@ -170,7 +170,7 @@ func TestBare(t *testing.T) {
 	strx := []byte("hello")
 	stry := []byte("2llo")
 
-	fx, fy := write_open(strx, stry)
+	fx, fy := writeOpen(strx, stry)
 
 	buf := make([]byte, 2)
 
@@ -180,10 +180,10 @@ func TestBare(t *testing.T) {
 
 	fy.Read(buf)
 
-	if same, err := FCmpBare(fx, fy); err != nil {
+	if same, err := Bare(fx, fy); err != nil {
 		t.Error(err)
 	} else if !same {
-		// Unlike FCmp, FCmpBare should ignore differing file sizes.
+		// Unlike Files, Bare should ignore differing file sizes.
 		t.Error("expected same")
 	}
 
@@ -205,7 +205,7 @@ func TestBare(t *testing.T) {
 	fy.Close()
 }
 
-func write_open(x []byte, y []byte) (*os.File, *os.File) {
+func writeOpen(x []byte, y []byte) (*os.File, *os.File) {
 	const perm = 0600
 
 	_ = ioutil.WriteFile(filex, x, perm)

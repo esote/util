@@ -22,7 +22,7 @@ func srvUUIDs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < count; i++ {
-		fmt.Fprintf(w, "%x\n", cacheUUID.NextWg().([]byte))
+		_, _ = fmt.Fprintf(w, "%x\n", cacheUUID.NextWg().([]byte))
 	}
 }
 
