@@ -8,6 +8,8 @@ import (
 
 // TCache (timed cache) is a cache which refreshes only after a certain
 // duration.
+//
+// This is the "memory" version of FCache.
 type TCache struct {
 	cache interface{}
 	dur   time.Duration
