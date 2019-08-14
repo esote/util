@@ -20,12 +20,12 @@ func TestNonNil(t *testing.T) {
 	d, err := NewDCache(size, fill)
 
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	for i := 0; i < reps; i++ {
 		if d.Next() == nil {
-			t.Errorf("%s at index %d", err, i)
+			t.Fatalf("%s at index %d\n", err, i)
 		}
 	}
 }

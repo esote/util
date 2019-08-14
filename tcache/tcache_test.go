@@ -18,7 +18,7 @@ func TestRefresh(t *testing.T) {
 	c, err := NewTCache(dur, fill)
 
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	var prev interface{}
@@ -27,7 +27,7 @@ func TestRefresh(t *testing.T) {
 		n := c.Next()
 
 		if n == nil {
-			t.Error("nil returned")
+			t.Fatal("nil returned")
 		}
 
 		// It is possible for this to fail due to a timing skew, but
@@ -37,7 +37,7 @@ func TestRefresh(t *testing.T) {
 			prev = n
 		case i < 5 || (i > 5 && i < 10):
 			if n != prev {
-				t.Error("refreshed out of sync")
+				t.Fatal("refreshed out of sync")
 			}
 		}
 

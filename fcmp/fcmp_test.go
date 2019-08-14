@@ -50,12 +50,12 @@ func TestFuzz(t *testing.T) {
 			same, err := Files(fx, fy)
 
 			if err != nil {
-				t.Error(err)
+				t.Fatal(err)
 			} else if bytes.Equal(strx, stry) != same {
 				if same {
-					t.Error("expected different")
+					t.Fatal("expected different")
 				} else {
-					t.Error("expected same")
+					t.Fatal("expected same")
 				}
 			}
 
@@ -71,9 +71,9 @@ func TestSame(t *testing.T) {
 	fx, fy := writeOpen(str, str)
 
 	if same, err := Files(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if !same {
-		t.Error("expected same")
+		t.Fatal("expected same")
 	}
 
 	fx.Close()
@@ -87,9 +87,9 @@ func TestDifferent(t *testing.T) {
 	fx, fy := writeOpen(strx, stry)
 
 	if same, err := Files(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if same {
-		t.Error("expected different")
+		t.Fatal("expected different")
 	}
 
 	fx.Close()
@@ -110,9 +110,9 @@ func TestLarge(t *testing.T) {
 	fx, fy := writeOpen(strx, stry)
 
 	if same, err := Files(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if !same {
-		t.Error("expected same")
+		t.Fatal("expected same")
 	}
 
 	fx.Close()
@@ -124,9 +124,9 @@ func TestLarge(t *testing.T) {
 	fx, fy = writeOpen(strx, stry)
 
 	if same, err := Files(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if same {
-		t.Error("expected different")
+		t.Fatal("expected different")
 	}
 
 	fx.Close()
@@ -145,21 +145,21 @@ func TestReloadOffset(t *testing.T) {
 	fy.Read(buf)
 
 	if same, err := Files(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if !same {
-		t.Error("expected same")
+		t.Fatal("expected same")
 	}
 
 	fx.Read(buf)
 
 	if !bytes.Equal(buf, []byte("ll")) {
-		t.Error("offset not reloaded")
+		t.Fatal("offset not reloaded")
 	}
 
 	fy.Read(buf)
 
 	if !bytes.Equal(buf, []byte("ll")) {
-		t.Error("offset not reloaded")
+		t.Fatal("offset not reloaded")
 	}
 
 	fx.Close()
@@ -181,10 +181,10 @@ func TestBare(t *testing.T) {
 	fy.Read(buf)
 
 	if same, err := Bare(fx, fy); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if !same {
 		// Unlike Files, Bare should ignore differing file sizes.
-		t.Error("expected same")
+		t.Fatal("expected same")
 	}
 
 	buf = make([]byte, 2)
@@ -192,13 +192,13 @@ func TestBare(t *testing.T) {
 	fx.Read(buf)
 
 	if bytes.Equal(buf, []byte("ll")) {
-		t.Error("offset reloaded somehow")
+		t.Fatal("offset reloaded somehow")
 	}
 
 	fy.Read(buf)
 
 	if bytes.Equal(buf, []byte("ll")) {
-		t.Error("offset reloaded somehow")
+		t.Fatal("offset reloaded somehow")
 	}
 
 	fx.Close()
