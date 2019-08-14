@@ -9,6 +9,9 @@ fcache/
 fcmp/
 	Compare files quickly.
 
+splay/
+	Splayed file tree.
+
 tcache/
 	Timed in-memory cache which refreshes only after a certain duration.
 
