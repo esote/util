@@ -19,6 +19,10 @@ func TestSplay(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if !s.Exists(name) {
+		t.Fatal("should exist")
+	}
+
 	if out, err := s.Read(name); err != nil {
 		t.Fatal(err)
 	} else if !bytes.Equal(out, data) {
@@ -27,6 +31,10 @@ func TestSplay(t *testing.T) {
 
 	if err = s.Remove(name); err != nil {
 		t.Fatal(err)
+	}
+
+	if s.Exists(name) {
+		t.Fatal("should not exist")
 	}
 
 	_ = s.Write(name, data)

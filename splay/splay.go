@@ -1,4 +1,17 @@
 // Package splay implements a splayed file tree.
+//
+// For example in the directory "images" with cutoff of 3, inserting the files
+// "transistor", "speaker", and "speach" would create a file tree as such:
+//
+//	images/
+//		spe/
+//			ach
+//			aker
+//		tra/
+//			nsistor
+//
+// This is useful to keep the number of files within a directory manageable.
+// The same concept is used with Git object hashes: see ".git/objects/".
 package splay
 
 import (
@@ -27,19 +40,6 @@ type Splay struct {
 }
 
 // NewSplay creates a new splay. Names will be splayed at cutoff.
-//
-// For example in the directory "images" with cutoff of 3, inserting the files
-// "transistor", "speaker", and "speach" would create a file tree as such:
-//
-//	images/
-//		spe/
-//			ach
-//			aker
-//		tra/
-//			nsistor
-//
-// This is useful to keep the number of files within a directory manageable.
-// The same concept is used with Git object hashes: see ".git/objects/".
 func NewSplay(dir string, cutoff uint64) (*Splay, error) {
 	if cutoff == 0 {
 		return nil, ErrInvalidCutoff
@@ -61,19 +61,20 @@ func NewSplay(dir string, cutoff uint64) (*Splay, error) {
 	}, nil
 }
 
-// Write a file to the splay. Overwrites existing files.
-func (s *Splay) Write(name string, data []byte) error {
-	dir, file, err := s.parts(name)
+// Exists checks if a file exists in the splay.
+func (s *Splay) Exists(name string) bool {
+	_, file, err := s.parts(name)
 
 	if err != nil {
-		return err
+		return false
 	}
 
-	if err = mkdirExists(dir); err != nil {
-		return err
-	}
+	_, err = os.Stat(file)
 
-	return ioutil.WriteFile(file, data, 0600)
+	// Even when os.IsExist(err), if err != nil then the file cannot be used
+	// and therefore does not exist from the splay's point of view. This can
+	// be due to EACCES, ENAMETOOLONG, etc.
+	return err == nil
 }
 
 // Read a file from the splay.
@@ -105,6 +106,21 @@ func (s *Splay) Remove(name string) error {
 // RemoveAll splay contents including the splay directory itself.
 func (s *Splay) RemoveAll() error {
 	return os.RemoveAll(s.dir)
+}
+
+// Write a file to the splay. Overwrites existing files.
+func (s *Splay) Write(name string, data []byte) error {
+	dir, file, err := s.parts(name)
+
+	if err != nil {
+		return err
+	}
+
+	if err = mkdirExists(dir); err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(file, data, 0600)
 }
 
 func (s *Splay) parts(name string) (dir string, file string, err error) {
