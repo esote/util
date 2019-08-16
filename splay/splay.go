@@ -1,3 +1,4 @@
+// Package splay implements a splayed file tree.
 package splay
 
 import (

@@ -1,3 +1,4 @@
+// Package fcache implements a timed file cache.
 package fcache
 
 import (

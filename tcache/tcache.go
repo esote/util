@@ -1,3 +1,4 @@
+// Package tcache implements a timed in-memory cache.
 package tcache
 
 import (

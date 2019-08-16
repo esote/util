@@ -1,3 +1,4 @@
+// Package dcache implements a delayed cache.
 package dcache
 
 import (

@@ -16,4 +16,5 @@ tcache/
 	Timed in-memory cache which refreshes only after a certain duration.
 
 uuid/
-	Generate (v4) UUIDs (128 bits) or MegaUUIDs (1028 bits) as a byte slice.
+	Generate cryptographically-random UUIDs (128 bits) or MegaUUIDs (1028
+	bits).

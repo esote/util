@@ -1,3 +1,4 @@
+// Package fcmp implements functions to compare files quickly.
 package fcmp
 
 import (

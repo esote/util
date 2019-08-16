@@ -1,3 +1,5 @@
+// Package uuid implements functions for generating cryptographically-random
+// UUIDs or MegaUUIDs.
 package uuid
 
 import (

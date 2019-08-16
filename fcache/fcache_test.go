@@ -12,7 +12,7 @@ func TestSimple(t *testing.T) {
 
 	fill := func() []byte {
 		b := make([]byte, 50)
-		rand.Read(b)
+		_, _ = rand.Read(b)
 		return b
 	}
 
@@ -51,5 +51,5 @@ func TestSimple(t *testing.T) {
 		t.Fatal("equal after clean")
 	}
 
-	f.Clean()
+	_ = f.Clean()
 }
