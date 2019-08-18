@@ -1,11 +1,11 @@
 // Package splay implements a splayed file tree.
 //
 // For example in the directory "images" with cutoff of 3, inserting the files
-// "transistor", "speaker", and "speach" would create a file tree as such:
+// "transistor", "speaker", and "speech" would create a file tree as such:
 //
 //	images/
 //		spe/
-//			ach
+//			ech
 //			aker
 //		tra/
 //			nsistor
@@ -63,13 +63,7 @@ func NewSplay(dir string, cutoff uint64) (*Splay, error) {
 
 // Exists checks if a file exists in the splay.
 func (s *Splay) Exists(name string) bool {
-	_, file, err := s.parts(name)
-
-	if err != nil {
-		return false
-	}
-
-	_, err = os.Stat(file)
+	_, err := s.Stat(name)
 
 	// Even when os.IsExist(err), if err != nil then the file cannot be used
 	// and therefore does not exist from the splay's point of view. This can
@@ -77,7 +71,36 @@ func (s *Splay) Exists(name string) bool {
 	return err == nil
 }
 
-// Read a file from the splay.
+// Open splay file for reading. For simple reading operations prefer Read. One
+// good use case is seeking while reading.
+//
+// The file must be closed by the caller.
+func (s *Splay) Open(name string) (*os.File, error) {
+	_, file, err := s.parts(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return os.Open(file)
+}
+
+// OpenFile opens splay file. For simple reading and writing operations prefer
+// Read and Write. Good use cases include writing to a file without overwriting
+// it, writing to a file in append-only mode, or seeking while writing.
+//
+// The file must be closed by the caller.
+func (s *Splay) OpenFile(name string, flag int, perm os.FileMode) (*os.File, error) {
+	_, file, err := s.parts(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return os.OpenFile(file, flag, perm)
+}
+
+// Read the entirety of a file from the splay.
 func (s *Splay) Read(name string) ([]byte, error) {
 	_, file, err := s.parts(name)
 
@@ -106,6 +129,18 @@ func (s *Splay) Remove(name string) error {
 // RemoveAll splay contents including the splay directory itself.
 func (s *Splay) RemoveAll() error {
 	return os.RemoveAll(s.dir)
+}
+
+// Stat returns os.FileInfo describing the splay file. For checking file
+// existence prefer Exists.
+func (s *Splay) Stat(name string) (os.FileInfo, error) {
+	_, file, err := s.parts(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return os.Stat(file)
 }
 
 // Write a file to the splay. Overwrites existing files.
@@ -144,22 +179,18 @@ func mkdirExists(dir string) error {
 	return err
 }
 
-func removeEmpty(name string) error {
-	f, err := os.Open(name)
+func removeEmpty(dir string) error {
+	d, err := os.Open(dir)
 
 	if err != nil {
 		return err
 	}
 
-	list, err := f.Readdirnames(1)
+	list, err := d.Readdirnames(1)
 
 	if err != io.EOF || len(list) != 0 {
-		return f.Close()
+		return d.Close()
 	}
 
-	if err = f.Close(); err != nil {
-		return err
-	}
-
-	return os.Remove(name)
+	return os.Remove(dir)
 }
