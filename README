@@ -12,6 +12,9 @@ fcmp/
 splay/
 	Splayed file tree.
 
+table/
+	Tabular indexing and insertion of fixed-width rows using Splay.
+
 tcache/
 	Timed in-memory cache which refreshes only after a certain duration.
 
