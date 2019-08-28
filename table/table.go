@@ -1,5 +1,5 @@
 // Package table provides file-based tabular indexing and insertion of
-// fixed-width rows.
+// fixed-width rows ordered by insertion time.
 //
 // Due to the indexing patterns, this has very narrow use cases.
 //
@@ -10,8 +10,8 @@ package table
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 
@@ -116,7 +116,7 @@ func (t *Table) InsertUnique(key, row string) error {
 
 func (t *Table) create(key, row string) error {
 	var b bytes.Buffer
-	b.Grow(64 + t.length)
+	b.Grow(8 + t.length)
 
 	_, _ = b.Write(encodeCount(1))
 	_, _ = b.WriteString(row)
@@ -191,17 +191,17 @@ func (t *Table) appendUniqueRow(key, row string) error {
 }
 
 func encodeCount(count uint64) []byte {
-	return []byte(fmt.Sprintf("%064b", count))
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, count)
+	return b
 }
 
 // Read and decode count. Assumes seek offset 0.
 func readCount(f *os.File) (out uint64, err error) {
-	buf := make([]byte, 64)
-
-	if _, err = f.Read(buf); err != nil {
+	b := make([]byte, 8)
+	if _, err = f.Read(b); err != nil {
 		return
 	}
-
-	_, err = fmt.Sscanf(string(buf), "%064b", &out)
+	out = binary.LittleEndian.Uint64(b)
 	return
 }

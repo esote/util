@@ -2,6 +2,7 @@ package table
 
 import (
 	"encoding/hex"
+	"os"
 	"testing"
 
 	"github.com/esote/util/uuid"
@@ -11,6 +12,14 @@ const (
 	key  = "9baacc8baed73d1f115d10d069a4ee63i"
 	name = "test_table"
 )
+
+func TestMain(m *testing.M) {
+	if table, err := NewTable(name, 1, 1); err == nil {
+		_ = table.Splay.RemoveAll()
+	}
+
+	os.Exit(m.Run())
+}
 
 func TestTable(t *testing.T) {
 	table, err := NewTable(name, 2, 2*uuid.LenUUID)
