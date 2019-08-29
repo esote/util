@@ -206,10 +206,6 @@ func BenchmarkDelete(b *testing.B) {
 
 	table, _ := NewTable(name, 2, rowsize)
 
-	for i := range buf {
-		_ = table.Insert(key, buf[i])
-	}
-
 	for i := 0; i < b.N; i++ {
 		for i := range buf {
 			_ = table.Insert(key, buf[i])
