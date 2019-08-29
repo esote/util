@@ -192,8 +192,8 @@ const (
 	rowsize = 10
 )
 
-// BenchmarkDelete100 benchmarks deleting all rows from a table of 100 rows.
-func BenchmarkDelete100(b *testing.B) {
+// BenchmarkDelete benchmarks deleting the middle row of a table with 100 rows.
+func BenchmarkDelete(b *testing.B) {
 	b.StopTimer()
 
 	var buf [bufsize]string
@@ -206,15 +206,19 @@ func BenchmarkDelete100(b *testing.B) {
 
 	table, _ := NewTable(name, 2, rowsize)
 
+	for i := range buf {
+		_ = table.Insert(key, buf[i])
+	}
+
 	for i := 0; i < b.N; i++ {
 		for i := range buf {
 			_ = table.Insert(key, buf[i])
 		}
 
 		b.StartTimer()
-		for row := range buf {
-			_ = table.Delete(key, buf[row])
-		}
+
+		_ = table.Delete(key, buf[bufsize/2])
+
 		b.StopTimer()
 
 		_ = table.Splay.Remove(key)
@@ -226,8 +230,8 @@ func BenchmarkDelete100(b *testing.B) {
 	}
 }
 
-// BenchmarkIndexN100 benchmarks indexing all rows from a table of 100 rows.
-func BenchmarkIndexN100(b *testing.B) {
+// BenchmarkIndexN benchmarks indexing one row from a table of 100 rows.
+func BenchmarkIndexN(b *testing.B) {
 	b.StopTimer()
 
 	var buf [bufsize]string
@@ -240,17 +244,16 @@ func BenchmarkIndexN100(b *testing.B) {
 
 	table, _ := NewTable(name, 2, rowsize)
 
+	for i := range buf {
+		_ = table.Insert(key, buf[i])
+	}
+
 	for i := 0; i < b.N; i++ {
-		for i := range buf {
-			_ = table.Insert(key, buf[i])
-		}
-
 		b.StartTimer()
-		_, _ = table.IndexN(key, 0)
+
+		_, _ = table.IndexN(key, 1)
+
 		b.StopTimer()
-
-		_ = table.Splay.Remove(key)
-
 	}
 
 	if err := table.Splay.RemoveAll(); err != nil {
@@ -258,8 +261,8 @@ func BenchmarkIndexN100(b *testing.B) {
 	}
 }
 
-// BenchmarkInsert100 benchmarks inserting 100 rows into an empty table.
-func BenchmarkInsert100(b *testing.B) {
+// BenchmarkInsert benchmarks inserting one row into a table with 99 rows.
+func BenchmarkInsert(b *testing.B) {
 	b.StopTimer()
 
 	var buf [bufsize]string
@@ -272,14 +275,19 @@ func BenchmarkInsert100(b *testing.B) {
 
 	table, _ := NewTable(name, 2, rowsize)
 
+	for i := 0; i < len(buf)-1; i++ {
+		_ = table.Insert(key, buf[i])
+	}
+
 	for i := 0; i < b.N; i++ {
 		b.StartTimer()
-		for i := range buf {
-			_ = table.Insert(key, buf[i])
-		}
+
+		_ = table.Insert(key, buf[99])
+
 		b.StopTimer()
 
-		_ = table.Splay.Remove(key)
+		// Delete the last item again.
+		_ = table.Delete(key, buf[99])
 	}
 
 	if err := table.Splay.RemoveAll(); err != nil {
@@ -287,9 +295,9 @@ func BenchmarkInsert100(b *testing.B) {
 	}
 }
 
-// BenchmarkInsertUnique100 benchmarks inserting 100 rows into an empty table where
-// 10 percent of the inserts are duplicates.
-func BenchmarkInsertUnique100(b *testing.B) {
+// BenchmarkInsertUnique benchmarks inserting a duplicate row into a table with
+// 99 rows.
+func BenchmarkInsertUnique(b *testing.B) {
 	b.StopTimer()
 
 	var buf [bufsize]string
@@ -300,21 +308,23 @@ func BenchmarkInsertUnique100(b *testing.B) {
 		buf[i] = string(b)
 	}
 
-	// Introduce duplicates.
-	for i := 0; i < len(buf); i += len(buf) / 10 {
-		buf[i] = buf[rand.Intn(len(buf))]
-	}
+	// Last item is a duplicate of the middle item.
+	buf[99] = buf[bufsize/2]
 
 	table, _ := NewTable(name, 2, rowsize)
 
+	for i := 0; i < len(buf)-1; i++ {
+		_ = table.Insert(key, buf[i])
+	}
+
 	for i := 0; i < b.N; i++ {
 		b.StartTimer()
-		for row := range buf {
-			_ = table.InsertUnique(key, buf[row])
-		}
+
+		_ = table.InsertUnique(key, buf[99])
+
 		b.StopTimer()
 
-		_ = table.Splay.Remove(key)
+		// Nothing to delete since it was not inserted.
 	}
 
 	if err := table.Splay.RemoveAll(); err != nil {
