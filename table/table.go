@@ -1,11 +1,11 @@
-// Package table provides file-based tabular indexing and insertion of
-// fixed-width rows ordered by insertion time.
+// Package table provides file-based tabular deletion, indexing, and insertion
+// of fixed-width rows ordered by insertion time.
 //
-// Due to the indexing patterns, this has very narrow use cases.
+// Due to the indexing patterns and memory pattern, this has very narrow use
+// cases.
 //
-// Time complexities: IndexN O(n), Insert O(1), InsertUnique O(existing rows).
-//
-// Space complexities: IndexN O(n), Insert and InsertUnique O(1).
+// Time complexities: Delete O(n), IndexN O(n), Insert O(1), InsertUnique O(n).
+// Space complexities: Delete O(n), IndexN O(n), Insert and InsertUnique O(1).
 package table
 
 import (
@@ -37,6 +37,75 @@ func NewTable(dir string, cutoff uint64, rowLength int) (t *Table, err error) {
 
 	t.Splay, err = splay.NewSplay(dir, cutoff)
 	return
+}
+
+// Delete row from table. Shifts all others rows down.
+func (t *Table) Delete(key, row string) error {
+	if !t.Splay.Exists(key) {
+		return errors.New("no such key")
+	}
+
+	if len(row) != t.length {
+		return errors.New("row length invalid")
+	}
+
+	f, err := t.Splay.OpenFile(key, os.O_RDWR, 0)
+
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	count, err := readCount(f)
+
+	if err != nil {
+		return err
+	}
+
+	buf := make([]byte, t.length)
+	var index int64
+
+	// Search for row.
+	for {
+		if _, err = f.Read(buf); err == io.EOF {
+			// Row not found.
+			return nil
+		} else if err != nil {
+			return err
+		}
+
+		index++
+
+		if string(buf) == row {
+			break
+		}
+
+	}
+
+	// Shift rows down.
+	rat := 8 + index*int64(t.length)
+	wat := rat - int64(t.length)
+
+	size := (int64(count) - index) * int64(t.length)
+	buf = make([]byte, size)
+
+	if _, err = f.ReadAt(buf, rat); err != nil {
+		return err
+	}
+
+	if _, err = f.WriteAt(buf, wat); err != nil {
+		return err
+	}
+
+	// Truncate last row.
+	size = 8 + int64(count-1)*int64(t.length)
+	if err = f.Truncate(size); err != nil {
+		return err
+	}
+
+	_, err = f.WriteAt(encodeCount(count-1), 0)
+	return err
 }
 
 // IndexN returns n table rows in order of latest first. If n == 0, all rows
