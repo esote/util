@@ -1,8 +1,7 @@
 // Package table provides file-based tabular deletion, indexing, and insertion
 // of fixed-width rows ordered by insertion time.
 //
-// Due to the indexing patterns and memory pattern, this has very narrow use
-// cases.
+// Due to the indexing and memory, this has very narrow use cases.
 //
 // Time complexities: Delete O(n), IndexN O(n), Insert O(1), InsertUnique O(n).
 // Space complexities: Delete O(n), IndexN O(n), Insert and InsertUnique O(1).
@@ -132,10 +131,10 @@ func (t *Table) IndexN(key string, n uint64) ([]string, error) {
 	var items []string
 
 	if n == 0 || n >= count {
-		items = make([]string, count)
-	} else {
-		items = make([]string, n)
+		n = count
 	}
+
+	items = make([]string, n)
 
 	offset := int64(len(items) * t.length)
 
