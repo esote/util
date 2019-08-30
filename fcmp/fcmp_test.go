@@ -2,6 +2,7 @@ package fcmp
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -215,4 +216,32 @@ func writeOpen(x []byte, y []byte) (*os.File, *os.File) {
 	fy, _ := os.Open(filey)
 
 	return fx, fy
+}
+
+func Benchmark256MB(b *testing.B) {
+	x := make([]byte, 256000000)
+	rand.Read(x)
+	y := make([]byte, 256000000)
+
+	copy(y, x)
+
+	fx, fy := writeOpen(x, y)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		b.StartTimer()
+
+		Bare(fx, fy)
+
+		b.StopTimer()
+
+		fx.Seek(0, io.SeekStart)
+		fy.Seek(0, io.SeekStart)
+	}
+
+	b.StopTimer()
+
+	fx.Close()
+	fy.Close()
 }

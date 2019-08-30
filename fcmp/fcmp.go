@@ -95,7 +95,7 @@ func Paths(x, y string) (bool, error) {
 //
 // Bare will not preserve the file offset: for this look to Files.
 func Bare(x, y *os.File) (bool, error) {
-	const l = 1000
+	const l = 4096
 
 	bufx := make([]byte, l)
 	bufy := make([]byte, l)
