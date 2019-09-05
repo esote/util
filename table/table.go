@@ -1,7 +1,7 @@
 // Package table provides file-based tabular deletion, indexing, and insertion
 // of fixed-width rows ordered by insertion time.
 //
-// Due to the indexing and memory, this has very narrow use cases.
+// Due to the indexing and memory patterns, this has very narrow use cases.
 //
 // Time complexities: Delete O(n), IndexN O(n), Insert O(1), InsertUnique O(n).
 // Space complexities: Delete O(n), IndexN O(n), Insert and InsertUnique O(1).
@@ -13,6 +13,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/esote/util/splay"
 )
@@ -22,6 +23,7 @@ type Table struct {
 	Splay *splay.Splay
 
 	length int
+	mu     sync.Mutex
 }
 
 // NewTable constructs a splay and creates a new Table.
@@ -40,6 +42,9 @@ func NewTable(dir string, cutoff uint64, rowLength int) (t *Table, err error) {
 
 // Delete row from table. Shifts all others rows down.
 func (t *Table) Delete(key, row string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if !t.Splay.Exists(key) {
 		return errors.New("no such key")
 	}
@@ -110,6 +115,9 @@ func (t *Table) Delete(key, row string) error {
 // IndexN returns n table rows in order of latest first. If n == 0, all rows
 // will be returned.
 func (t *Table) IndexN(key string, n uint64) ([]string, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if !t.Splay.Exists(key) {
 		return nil, errors.New("no such key")
 	}
@@ -157,6 +165,9 @@ func (t *Table) IndexN(key string, n uint64) ([]string, error) {
 
 // Insert row into table.
 func (t *Table) Insert(key, row string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if len(row) != t.length {
 		return errors.New("row length invalid")
 	}
@@ -171,6 +182,9 @@ func (t *Table) Insert(key, row string) error {
 // InsertUnique row into table. If the row already exists, no change is made to
 // the key file.
 func (t *Table) InsertUnique(key, row string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if len(row) != t.length {
 		return errors.New("row length invalid")
 	}
