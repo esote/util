@@ -9,6 +9,9 @@ fcache/
 fcmp/
 	Compare files quickly.
 
+pool/
+	Simple, versatile worker pool implementation.
+
 splay/
 	Splayed file tree.
 
