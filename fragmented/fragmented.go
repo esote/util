@@ -7,7 +7,7 @@ type Selector interface {
 	Next() (io.ReadWriteCloser, error)
 }
 
-// Fragmented breaks IO operations across a series of notes to form an
+// Fragmented breaks IO operations across a series of nodes to form an
 // amalgamated read-writer. Can be used to construct a mesh network by having
 // the selector maintain a list of network participants.
 type Fragmented struct {
