@@ -9,6 +9,9 @@ fcache/
 fcmp/
 	Compare files quickly.
 
+fragmented/
+	Fragment read and write operations across nodes.
+
 pool/
 	Simple, versatile worker pool implementation.
 
