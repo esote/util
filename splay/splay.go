@@ -91,10 +91,17 @@ func (s *Splay) Open(name string) (*os.File, error) {
 //
 // The file must be closed by the caller.
 func (s *Splay) OpenFile(name string, flag int, perm os.FileMode) (*os.File, error) {
-	_, file, err := s.parts(name)
+	dir, file, err := s.parts(name)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if (flag & os.O_CREATE) == os.O_CREATE {
+		// File is being created
+		if err = mkdirExists(dir); err != nil {
+			return nil, err
+		}
 	}
 
 	return os.OpenFile(file, flag, perm)
