@@ -4,7 +4,7 @@ package abool
 import "sync/atomic"
 
 const (
-	f = iota
+	f int32 = iota
 	t
 )
 

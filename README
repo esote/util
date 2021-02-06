@@ -1,5 +1,8 @@
 Go utilities.
 
+abool/
+	Atomic boolean.
+
 dcache/
 	Delayed cache as a self-populating ring buffer.
 
