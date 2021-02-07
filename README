@@ -15,6 +15,9 @@ fcmp/
 fragmented/
 	Fragment read and write operations across nodes.
 
+io64/
+	IO operations for uint64 lengths.
+
 pool/
 	Simple, versatile worker pool implementation.
 
