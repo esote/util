@@ -1,4 +1,4 @@
-package abool
+package atomic2
 
 import "testing"
 

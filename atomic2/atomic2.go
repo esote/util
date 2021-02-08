@@ -1,5 +1,5 @@
-// Package abool implements an atomic boolean.
-package abool
+// Package atomic2 implements more atomic values.
+package atomic2
 
 import "sync/atomic"
 

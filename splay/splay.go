@@ -16,10 +16,10 @@ package splay
 
 import (
 	"errors"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"syscall"
 )
 
 var (
@@ -187,17 +187,9 @@ func mkdirExists(dir string) error {
 }
 
 func removeEmpty(dir string) error {
-	d, err := os.Open(dir)
-
-	if err != nil {
-		return err
+	err := os.Remove(dir)
+	if perr, ok := err.(*os.PathError); ok && perr.Err == syscall.ENOTEMPTY {
+		return nil
 	}
-
-	list, err := d.Readdirnames(1)
-
-	if err != io.EOF || len(list) != 0 {
-		return d.Close()
-	}
-
-	return os.Remove(dir)
+	return err
 }
