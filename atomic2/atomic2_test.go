@@ -3,7 +3,7 @@ package atomic2
 import "testing"
 
 func TestBool(t *testing.T) {
-	b := New()
+	b := NewBool()
 	if b.IsSet() {
 		t.Fatal("already set")
 	}
@@ -23,7 +23,7 @@ func TestBool(t *testing.T) {
 
 func BenchmarkAtomicBool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		b := New()
+		b := NewBool()
 		_ = b.Set()
 		_ = b.Unset()
 		_ = b.IsSet()

@@ -12,7 +12,7 @@ const (
 type Bool int32
 
 // New returns an unset boolean.
-func New() *Bool {
+func NewBool() *Bool {
 	return new(Bool)
 }
 
